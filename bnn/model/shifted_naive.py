@@ -3,7 +3,6 @@ from typing import List, Union
 
 import numpy as np
 import torch
-from torch import nn
 from torch.nn import functional as F
 
 from bnn.constants import DATA_DIR
@@ -14,7 +13,8 @@ from bnn.model.base import BaseClassifier
 class ShiftedNaiveClassifier(BaseClassifier):
     def __init__(self, labels: Union[List[Union[str, int]], int], dataset_name: str, multilabel: bool = False):
         super().__init__(labels, multilabel)
-        self.shifter_matrix = torch.tensor(np.load(os.path.join(DATA_DIR, dataset_name, "correction_matrix.npy"))).float()
+        self.shifter_matrix = torch.tensor(
+            np.load(os.path.join(DATA_DIR, dataset_name, "correction_matrix.npy"))).float()
 
         if self.task == "multiclass":
             self.val_true_metrics = MulticlassClassificationMetrics(self.num_classes, "val_true", self.labels)

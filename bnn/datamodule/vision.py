@@ -18,7 +18,6 @@ class VisionDataModule(pl.LightningDataModule):
         self.is_setup = False
         self.setup()
 
-
     def setup(self, stage: Optional[str] = None) -> None:
         if not self.is_setup:
             self.is_setup = True
@@ -42,7 +41,6 @@ class VisionDataModule(pl.LightningDataModule):
                 f'train_test_split is incorrect, test set has length{len(self.test_dataset)}, ' \
                 f'expected {self.train_test_split[1]}'
 
-
     def train_dataloader(self):
         return DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True)
 
@@ -51,5 +49,6 @@ class VisionDataModule(pl.LightningDataModule):
 
     def test_dataloader(self):
         return DataLoader(self.test_dataset, batch_size=self.batch_size)
+
 
 data = VisionDataModule("mnist", (60000, 10000))

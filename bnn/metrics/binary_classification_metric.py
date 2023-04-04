@@ -3,6 +3,7 @@ from typing import Literal
 import torch
 import torchmetrics as tm
 from sklearn import metrics
+
 from bnn.metrics import ClassificationMetric
 
 

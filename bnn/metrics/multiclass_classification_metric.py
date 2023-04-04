@@ -3,6 +3,7 @@ from typing import List, Literal
 import torch
 import torchmetrics as tm
 from sklearn import metrics
+
 from bnn.metrics.base import ClassificationMetric
 from bnn.metrics.classification_report import ClassificationReport
 
@@ -42,7 +43,7 @@ class MulticlassClassificationMetrics(ClassificationMetric):
         return {"f1_score": self.macro_f1, "accuracy": self.accuracy, "mcc": self.macorcoef}
 
     def nonscalars(self, current_epoch):
-        return self.plot_confusion_matrix( current_epoch), self.write_classification_report()
+        return self.plot_confusion_matrix(current_epoch), self.write_classification_report()
 
     def plot_confusion_matrix(self, current_epoch):
         cf_matrix = self.cnfs_mat.compute().cpu().numpy()

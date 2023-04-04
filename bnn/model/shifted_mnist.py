@@ -1,9 +1,7 @@
 from typing import Union, List
 
-from torch import nn
-
-from bnn.model.shifted_naive import ShiftedNaiveClassifier
 from bnn.model.mnist import MNISTClassifier
+from bnn.model.shifted_naive import ShiftedNaiveClassifier
 
 
 class ShiftedMNISTClassifier(ShiftedNaiveClassifier, MNISTClassifier):

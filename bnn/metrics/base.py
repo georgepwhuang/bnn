@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
+from typing import Dict, Any, List, Union
 
 from matplotlib.figure import Figure
 from torch import nn
-from typing import Dict, Any, List, Union
 
 
 class ClassificationMetric(nn.Module, ABC):
