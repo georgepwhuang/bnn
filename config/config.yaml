@@ -1,0 +1,25 @@
+seed_everything: 42
+data:
+  class_path: bnn.datamodule.VisionDataModule
+  init_args:
+    dataset_name: mnist
+    train_test_split:
+      - 60000
+      - 10000
+    batch_size: 64
+model:
+  class_path: bnn.model.MNISTClassifier
+  init_args:
+    labels: 10
+optimizer:
+  class_path: torch.optim.AdamW
+  init_args:
+    lr: 1e-3
+trainer:
+  max_epochs: 50
+  callbacks:
+    - class_path: pytorch_lightning.callbacks.ModelCheckpoint
+      init_args:
+        monitor: val_f1_score
+        mode: max
+        every_n_epochs: 1
