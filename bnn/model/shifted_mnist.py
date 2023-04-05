@@ -5,5 +5,5 @@ from bnn.model.shifted_naive import ShiftedNaiveClassifier
 
 
 class ShiftedMNISTClassifier(ShiftedNaiveClassifier, MNISTClassifier):
-    def __init__(self, labels: Union[List[Union[str, int]], int], dataset_name: str, multilabel: bool = False):
-        super(ShiftedMNISTClassifier, self).__init__(labels=labels, dataset_name=dataset_name, multilabel=multilabel)
+    def __init__(self, labels: Union[List[Union[str, int]], int], dataset_name: str):
+        super(ShiftedMNISTClassifier, self).__init__(labels=labels, dataset_name=dataset_name)

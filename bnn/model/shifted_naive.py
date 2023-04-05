@@ -19,6 +19,14 @@ class ShiftedNaiveClassifier(BaseClassifier):
         self.val_true_metrics = MulticlassClassificationMetrics(self.num_classes, "val_true", self.labels)
         self.test_true_metrics = MulticlassClassificationMetrics(self.num_classes, "test_true", self.labels)
 
+    def on_fit_start(self) -> None:
+        self.shifter_matrix = self.shifter_matrix.to(self.device)
+        return super().on_fit_start()
+    
+    def on_test_start(self) -> None:
+        self.shifter_matrix = self.shifter_matrix.to(self.device)
+        return super().on_test_start()
+    
     def training_step(self, batch, batch_idx):
         data, label, corrected_label = batch
         output = self(data)

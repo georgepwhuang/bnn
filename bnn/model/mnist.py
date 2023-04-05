@@ -6,8 +6,8 @@ from bnn.model.base import BaseClassifier
 
 
 class MNISTClassifier(BaseClassifier):
-    def __init__(self, labels: Union[List[Union[str, int]], int], multilabel: bool = False):
-        super().__init__(labels, multilabel)
+    def __init__(self, labels: Union[List[Union[str, int]], int]):
+        super().__init__(labels)
         self.model = nn.Sequential(
             nn.Conv2d(1, 8, kernel_size=3),
             nn.BatchNorm2d(8),
