@@ -25,14 +25,14 @@ class BaseClassifier(pl.LightningModule, ABC):
         return self.model(x)
 
     def training_step(self, batch, batch_idx):
-        data, label, corrected_label = batch
+        data, label = batch
         output = self(data)
         loss = F.cross_entropy(output, label)
         self.log('train_loss', loss)
         return loss
 
     def validation_step(self, batch, batch_idx):
-        data, label, corrected_label = batch
+        data, label = batch
         output = self(data)
         loss = F.cross_entropy(output, label)
         logits = F.softmax(output, -1)
@@ -44,7 +44,7 @@ class BaseClassifier(pl.LightningModule, ABC):
         self.log_nonscalars(self.val_metrics)
 
     def test_step(self, batch, batch_idx):
-        data, label, corrected_label = batch
+        data, label = batch
         output = self(data)
         loss = F.cross_entropy(output, label)
         logits = F.softmax(output, -1)

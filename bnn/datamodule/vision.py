@@ -1,46 +1,52 @@
 import os
-from typing import Optional, Tuple
+from typing import Optional
 
-import numpy as np
 import pytorch_lightning as pl
+import json
 import torch
-from torch.utils.data import random_split, DataLoader, TensorDataset
+import numpy as np
+from torch.nn import functional as F
+import torchvision
+from torch.utils.data import random_split, DataLoader
 
 from bnn.constants import DATA_DIR
 
 
 class VisionDataModule(pl.LightningDataModule):
-    def __init__(self, dataset_name: str, train_test_split: Tuple[int, int], batch_size: int = 128):
+    def __init__(self, dataset_name: str, batch_size: int = 128):
         super().__init__()
         self.dataset_name = dataset_name
         self.batch_size = batch_size
-        self.train_test_split = train_test_split
         self.is_setup = False
         self.setup()
 
     def setup(self, stage: Optional[str] = None) -> None:
         if not self.is_setup:
             self.is_setup = True
-            data = np.load(os.path.join(DATA_DIR, self.dataset_name, "data.npy"))
-            labels = np.load(os.path.join(DATA_DIR, self.dataset_name, "labels.npy"))
-            corrected_labels = np.load(os.path.join(DATA_DIR, self.dataset_name, "corrected_labels.npy"))
-            train_data = data[:self.train_test_split[0]]
-            train_labels = labels[:self.train_test_split[0]]
-            train_corrected_labels = corrected_labels[:self.train_test_split[0]]
-            test_data = data[self.train_test_split[0]:]
-            test_labels = labels[self.train_test_split[0]:]
-            test_corrected_labels = corrected_labels[self.train_test_split[0]:]
-            training_dataset = TensorDataset(torch.tensor(train_data), torch.tensor(train_labels).long(),
-                                             torch.tensor(train_corrected_labels).long())
-            val_len = int(len(training_dataset) / 10)
-            self.train_dataset, self.val_dataset = random_split(training_dataset,
-                                                                [len(training_dataset) - val_len, val_len])
-            self.test_dataset = TensorDataset(torch.tensor(test_data), torch.tensor(test_labels).long(),
-                                              torch.tensor(test_corrected_labels).long())
-            assert len(self.test_dataset) == self.train_test_split[1], \
-                f'train_test_split is incorrect, test set has length{len(self.test_dataset)}, ' \
-                f'expected {self.train_test_split[1]}'
-
+            try:
+                dataset_class = getattr(torchvision.datasets, self.dataset_name.upper())
+            except AttributeError:
+                raise ModuleNotFoundError(f"Dataset {self.dataset_name.upper()} not supplied in torchvision")
+            self.full_dataset = dataset_class(root=os.path.join(DATA_DIR, "data", self.dataset_name), train=True, download=True, transform=torchvision.transforms.ToTensor())
+            self.test_dataset = dataset_class(root=os.path.join(DATA_DIR, "data", self.dataset_name), train=False, download=True, transform=torchvision.transforms.ToTensor())
+            self.num_classes = len(self.test_dataset.classes)
+            val_len = int(len(self.full_dataset) / 10)
+            self.train_dataset, self.val_dataset = random_split(self.full_dataset,
+                                                                [len(self.full_dataset) - val_len, val_len])
+            correction_matrix = np.zeros((self.num_classes, self.num_classes))
+            for i in self.test_dataset.targets:
+                correction_matrix[i][i] += 1
+            with open(os.path.join(DATA_DIR, "corrections", self.dataset_name+".json"), 'r') as f:
+                corrections = json.load(f)
+                for correction in corrections:
+                    if correction['mturk']['guessed'] >= 3:
+                        self.test_dataset.targets[correction['id']] = correction['our_guessed_label']
+                        correction_matrix[correction['given_original_label']][correction['given_original_label']] -= 1
+                        correction_matrix[correction['our_guessed_label']][correction['given_original_label']] += 1
+            correction_matrix = torch.tensor(correction_matrix).float()
+            correction_matrix = correction_matrix/correction_matrix.sum(dim=1)
+            self.correction_matrix = correction_matrix.transpose(0, 1)
+            
     def train_dataloader(self):
         return DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True)
 
@@ -49,6 +55,3 @@ class VisionDataModule(pl.LightningDataModule):
 
     def test_dataloader(self):
         return DataLoader(self.test_dataset, batch_size=self.batch_size)
-
-
-data = VisionDataModule("mnist", (60000, 10000))

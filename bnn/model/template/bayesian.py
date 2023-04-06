@@ -11,7 +11,7 @@ class BayesianClassifier(BaseClassifier):
         self.beta = beta
 
     def training_step(self, batch, batch_idx):
-        data, label, corrected_label = batch
+        data, label = batch
         output = self(data)
         celoss = F.cross_entropy(output, label)
         self.log('train_cross_entropy_loss', celoss)
@@ -25,7 +25,7 @@ class BayesianClassifier(BaseClassifier):
         return total_loss
 
     def validation_step(self, batch, batch_idx):
-        data, label, corrected_label = batch
+        data, label = batch
         output = self(data)
         celoss = F.cross_entropy(output, label)
         self.log('val_cross_entropy_loss', celoss,  on_epoch=True)
@@ -44,9 +44,9 @@ class BayesianClassifier(BaseClassifier):
         self.log_nonscalars(self.val_metrics)
 
     def test_step(self, batch, batch_idx):
-        data, label, corrected_label = batch
+        data, corrected_label = batch
         output = self(data)
-        celoss = F.cross_entropy(output, label)
+        celoss = F.cross_entropy(output, corrected_label)
         self.log('test_cross_entropy_loss', celoss, on_epoch=True)
         klloss = 0
         for module in self.model.modules():
@@ -56,7 +56,7 @@ class BayesianClassifier(BaseClassifier):
         total_loss = celoss + self.get_beta(batch_idx, len(self.trainer.test_dataloaders), self.current_epoch, self.trainer.max_epochs) * klloss
         self.log('test_total_loss', total_loss)
         logits = F.softmax(output, -1)
-        self.test_metrics(logits, label)
+        self.test_metrics(logits, corrected_label)
         self.log_scalars(self.test_metrics)
 
     def on_test_epoch_end(self):
