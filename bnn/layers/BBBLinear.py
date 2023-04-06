@@ -12,10 +12,9 @@ class BBBLinear(nn.Module):
         self.in_features = in_features
         self.out_features = out_features
         self.use_bias = bias
-        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
         if priors is None:
-                priors = {
+            priors = {
                 'prior_mu': 0,
                 'prior_sigma': 0.1,
                 'posterior_mu_initial': (0, 0.1),
@@ -59,8 +58,8 @@ class BBBLinear(nn.Module):
         act_std = torch.sqrt(act_var)
 
         if self.training or sample:
-            eps = torch.empty(act_mu.size()).normal_(0, 1).to(self.device)
-            return act_mu + act_std * eps, self.kl_loss()
+            eps = torch.empty_like(act_mu).normal_(0, 1)
+            return act_mu + act_std * eps
         else:
             return act_mu
 

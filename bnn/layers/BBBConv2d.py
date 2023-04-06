@@ -17,7 +17,6 @@ class BBBConv2d(nn.Module):
         self.dilation = dilation
         self.groups = 1
         self.use_bias = bias
-        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
         if priors is None:
             priors = {
@@ -51,7 +50,6 @@ class BBBConv2d(nn.Module):
             self.bias_rho.data.normal_(*self.posterior_rho_initial)
 
     def forward(self, x, sample=True):
-
         self.W_sigma = torch.log1p(torch.exp(self.W_rho))
         if self.use_bias:
             self.bias_sigma = torch.log1p(torch.exp(self.bias_rho))
@@ -66,8 +64,8 @@ class BBBConv2d(nn.Module):
         act_std = torch.sqrt(act_var)
 
         if self.training or sample:
-            eps = torch.empty(act_mu.size()).normal_(0, 1).to(self.device)
-            return act_mu + act_std * eps, self.kl_loss()
+            eps = torch.empty_like(act_mu).normal_(0, 1)
+            return act_mu + act_std * eps
         else:
             return act_mu
 

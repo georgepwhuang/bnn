@@ -1,2 +1,4 @@
 from bnn.model.mnist import MNISTClassifier
 from bnn.model.shifted_mnist import ShiftedMNISTClassifier
+from bnn.model.bayesian_mnist import BayesianMNISTClassifier
+from bnn.model.shifted_bayesian_mnist import ShiftedBayesianMNISTClassifier

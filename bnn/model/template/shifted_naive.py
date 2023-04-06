@@ -7,12 +7,12 @@ from torch.nn import functional as F
 
 from bnn.constants import DATA_DIR
 from bnn.metrics import MulticlassClassificationMetrics
-from bnn.model.base import BaseClassifier
+from bnn.model.template.base import BaseClassifier
 
 
 class ShiftedNaiveClassifier(BaseClassifier):
-    def __init__(self, labels: Union[List[Union[str, int]], int], dataset_name: str):
-        super().__init__(labels)
+    def __init__(self, labels: Union[List[Union[str, int]], int], dataset_name: str, *args, **kwargs):
+        super(ShiftedNaiveClassifier, self).__init__(labels, *args, **kwargs)
         self.shifter_matrix = torch.tensor(
             np.load(os.path.join(DATA_DIR, dataset_name, "correction_matrix.npy"))).float()
 

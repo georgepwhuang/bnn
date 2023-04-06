@@ -2,14 +2,13 @@ from abc import ABC
 from typing import List, Union
 
 import pytorch_lightning as pl
-import torch
 from torch.nn import functional as F
 
 from bnn.metrics import MulticlassClassificationMetrics
 
 
 class BaseClassifier(pl.LightningModule, ABC):
-    def __init__(self, labels: Union[List[Union[str, int]], int]):
+    def __init__(self, labels: Union[List[Union[str, int]], int], *args, **kwargs):
         super().__init__()
         if isinstance(labels, int):
             self.num_classes = labels

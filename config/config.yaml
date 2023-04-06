@@ -8,9 +8,10 @@ data:
       - 10000
     batch_size: 64
 model:
-  class_path: bnn.model.ShiftedMNISTClassifier
+  class_path: bnn.model.ShiftedBayesianMNISTClassifier
   init_args:
     labels: 10
+    beta: 0.1
 optimizer:
   class_path: torch.optim.AdamW
   init_args:

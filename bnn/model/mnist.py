@@ -2,12 +2,12 @@ from typing import Union, List
 
 from torch import nn
 
-from bnn.model.base import BaseClassifier
+from bnn.model.template.base import BaseClassifier
 
 
 class MNISTClassifier(BaseClassifier):
-    def __init__(self, labels: Union[List[Union[str, int]], int]):
-        super().__init__(labels)
+    def __init__(self, labels: Union[List[Union[str, int]], int], *args, **kwargs):
+        super(MNISTClassifier, self).__init__(labels, *args, **kwargs)
         self.model = nn.Sequential(
             nn.Conv2d(1, 8, kernel_size=3),
             nn.BatchNorm2d(8),
