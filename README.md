@@ -1,16 +1,16 @@
-# Post-Variational Quantum Neural Networks
+# A Bayesian Approach to Noisy Labels
 
 An implementation of post-variational quantum neural networks on image classification. 
 
 
-## Instructions to Local Installations
+## Instructions for Local Installations
 
 We recommend that you install this library in a virtual environment.
 
 1. Clone from git
 
 	```bash
-	git clone https://github.com/georgepwhuang/pvqa.git
+	git clone https://github.com/georgepwhuang/bnn.git
 	cd pvqa
 	```
 
