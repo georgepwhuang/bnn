@@ -17,4 +17,4 @@ class BNNCLI(LightningCLI):
 warnings.filterwarnings("ignore", category=TqdmExperimentalWarning)
 cli = BNNCLI(parser_kwargs={"default_config_files": [str(CONFIG_DIR.joinpath("config.yaml"))]}, run=False)
 cli.trainer.fit(cli.model, cli.datamodule)
-cli.trainer.test(cli.model, ckpt_path="best")
+cli.trainer.test(cli.model, cli.datamodule, ckpt_path="best")
