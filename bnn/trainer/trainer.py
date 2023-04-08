@@ -1,3 +1,6 @@
+import os
+os.environ["PYTORCH_ENABLE_MPS_FALLBACK"]="1"
+
 import warnings
 
 from pytorch_lightning.cli import LightningCLI

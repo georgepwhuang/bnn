@@ -20,6 +20,7 @@ class MulticlassClassificationMetrics(ClassificationMetric):
         self.macro_f1 = tm.F1Score(num_classes=self.num_classes, average="macro", task="multiclass")
         self.accuracy = tm.Accuracy(num_classes=self.num_classes, task="multiclass")
         self.macorcoef = tm.MatthewsCorrCoef(num_classes=self.num_classes, task="multiclass")
+        self.caliberr = tm.CalibrationError(num_classes=self.num_classes, task="multiclass")
 
         self.cnfs_mat = tm.ConfusionMatrix(num_classes=self.num_classes, normalize="true", task="multiclass")
         self.class_report = ClassificationReport(num_classes=self.num_classes, labels=self.labels)
@@ -40,7 +41,7 @@ class MulticlassClassificationMetrics(ClassificationMetric):
 
     @property
     def scalars(self):
-        return {"f1_score": self.macro_f1, "accuracy": self.accuracy, "mcc": self.macorcoef}
+        return {"f1_score": self.macro_f1, "accuracy": self.accuracy, "mcc": self.macorcoef, "calibration_err": self.caliberr}
 
     def nonscalars(self, current_epoch):
         return self.plot_confusion_matrix(current_epoch), self.write_classification_report()
@@ -48,7 +49,7 @@ class MulticlassClassificationMetrics(ClassificationMetric):
     def plot_confusion_matrix(self, current_epoch):
         cf_matrix = self.cnfs_mat.compute().cpu().numpy()
         fig = metrics.ConfusionMatrixDisplay(cf_matrix, display_labels=self.labels).plot(values_format='.1%').figure_
-        fig.set_size_inches(10, 10)
+        fig.set_size_inches(1.5*self.num_classes, 1.5*self.num_classes)
         fig.suptitle(f"Confusion Matrix, Epoch {current_epoch}")
         return {"name": "cnfs_mat", "type": "fig", "data": fig}
 
