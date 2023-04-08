@@ -1,6 +1,7 @@
 import torch
-from torch import nn
 import torch.nn.functional as F
+from torch import nn
+
 from bnn.util import calculate_kl as KL_DIV
 
 

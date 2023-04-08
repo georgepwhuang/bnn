@@ -3,7 +3,6 @@ from typing import Union, List
 from torch import nn
 
 from bnn.layers import BBBConv2d, BBBLinear
-
 from bnn.model.template.bayesian import BayesianClassifier
 
 

@@ -1,7 +1,5 @@
-import os
 from typing import List, Union
 
-import numpy as np
 import torch
 from torch.nn import functional as F
 
@@ -16,11 +14,11 @@ class ShiftedNaiveClassifier(BaseClassifier):
     def on_fit_start(self) -> None:
         self.shifter_matrix = self.shifter_matrix.to(self.device)
         return super().on_fit_start()
-    
+
     def on_test_start(self) -> None:
         self.shifter_matrix = self.shifter_matrix.to(self.device)
         return super().on_test_start()
-    
+
     def training_step(self, batch, batch_idx):
         data, label = batch
         output = self(data)

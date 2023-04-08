@@ -1,9 +1,9 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='bnn',
     version='',
-    packages=['bnn', 'bnn.model', 'bnn.metrics', 'bnn.trainer', 'bnn.datamodule', 'bnn.layers', 'bnn.util'],
+    packages=find_packages(),
     url='',
     license='',
     author='georgehuang',

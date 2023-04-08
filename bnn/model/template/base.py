@@ -17,7 +17,7 @@ class BaseClassifier(pl.LightningModule, ABC):
             self.labels = list(map(lambda x: str(x), labels))
             self.num_classes = len(self.labels)
         self.save_hyperparameters()
-        
+
         self.val_metrics = MulticlassClassificationMetrics(self.num_classes, "val", self.labels)
         self.test_metrics = MulticlassClassificationMetrics(self.num_classes, "test", self.labels)
 

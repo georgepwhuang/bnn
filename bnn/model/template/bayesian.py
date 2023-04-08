@@ -20,7 +20,8 @@ class BayesianClassifier(BaseClassifier):
             if hasattr(module, 'kl_loss'):
                 klloss = klloss + module.kl_loss()
         self.log('train_kldiv_loss', klloss)
-        total_loss = celoss + self.get_beta(batch_idx, len(self.trainer.train_dataloader), self.current_epoch, self.trainer.max_epochs) * klloss
+        total_loss = celoss + self.get_beta(batch_idx, len(self.trainer.train_dataloader), self.current_epoch,
+                                            self.trainer.max_epochs) * klloss
         self.log('train_total_loss', total_loss)
         return total_loss
 
@@ -28,13 +29,14 @@ class BayesianClassifier(BaseClassifier):
         data, label = batch
         output = self(data)
         celoss = F.cross_entropy(output, label)
-        self.log('val_cross_entropy_loss', celoss,  on_epoch=True)
+        self.log('val_cross_entropy_loss', celoss, on_epoch=True)
         klloss = 0
         for module in self.model.modules():
             if hasattr(module, 'kl_loss'):
                 klloss = klloss + module.kl_loss()
         self.log('val_kldiv_loss', klloss)
-        total_loss = celoss + self.get_beta(batch_idx, len(self.trainer.val_dataloaders), self.current_epoch, self.trainer.max_epochs) * klloss
+        total_loss = celoss + self.get_beta(batch_idx, len(self.trainer.val_dataloaders), self.current_epoch,
+                                            self.trainer.max_epochs) * klloss
         self.log('val_total_loss', total_loss)
         logits = F.softmax(output, -1)
         self.val_metrics(logits, label)
@@ -53,7 +55,8 @@ class BayesianClassifier(BaseClassifier):
             if hasattr(module, 'kl_loss'):
                 klloss = klloss + module.kl_loss()
         self.log('test_kldiv_loss', klloss)
-        total_loss = celoss + self.get_beta(batch_idx, len(self.trainer.test_dataloaders), self.current_epoch, self.trainer.max_epochs) * klloss
+        total_loss = celoss + self.get_beta(batch_idx, len(self.trainer.test_dataloaders), self.current_epoch,
+                                            self.trainer.max_epochs) * klloss
         self.log('test_total_loss', total_loss)
         logits = F.softmax(output, -1)
         self.test_metrics(logits, corrected_label)

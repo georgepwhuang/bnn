@@ -1,5 +1,6 @@
 import os
-os.environ["PYTORCH_ENABLE_MPS_FALLBACK"]="1"
+
+os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
 
 import warnings
 
@@ -16,7 +17,8 @@ class BNNCLI(LightningCLI):
         parser.link_arguments("data.num_classes", "model.init_args.labels", apply_on="instantiate")
         parser.link_arguments("data.correction_matrix", "model.init_args.correction_matrix", apply_on="instantiate")
         parser.set_defaults({"trainer.logger": TensorBoardLogger(save_dir=LOG_DIR)})
-            
+
+
 warnings.filterwarnings("ignore", category=TqdmExperimentalWarning)
 cli = BNNCLI(parser_kwargs={"default_config_files": [str(CONFIG_DIR.joinpath("config.yaml"))]}, run=False)
 cli.trainer.fit(cli.model, cli.datamodule)
