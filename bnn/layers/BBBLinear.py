@@ -64,7 +64,7 @@ class BBBLinear(nn.Module):
             return act_mu
 
     def kl_loss(self, num_batches):
-        kl = KL_DIV(self.prior_mu, self.prior_sigma, self.W_mu, self.W_sigma, num_batches)
+        kl = KL_DIV(self.W_mu, self.W_sigma, self.prior_mu, self.prior_sigma, num_batches)
         if self.use_bias:
-            kl += KL_DIV(self.prior_mu, self.prior_sigma, self.bias_mu, self.bias_sigma, num_batches)
+            kl += KL_DIV(self.bias_mu, self.bias_sigma, self.prior_mu, self.prior_sigma, num_batches)
         return kl
