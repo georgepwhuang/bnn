@@ -10,7 +10,8 @@ class ShiftedNaiveClassifier(BaseClassifier):
     def __init__(self, labels: Union[List[Union[str, int]], int], correction_matrix: torch.Tensor, *args, **kwargs):
         super(ShiftedNaiveClassifier, self).__init__(labels, *args, **kwargs)
         self.shifter_matrix = correction_matrix
-
+        self.shifter_matrix.requires_grad = False
+        
     def on_fit_start(self) -> None:
         self.shifter_matrix = self.shifter_matrix.to(self.device)
         return super().on_fit_start()
@@ -23,7 +24,7 @@ class ShiftedNaiveClassifier(BaseClassifier):
         data, label = batch
         output = self(data)
         true_logits = F.softmax(output, -1)
-        logits = F.linear(true_logits, self.shifter_matrix)
+        logits = F.linear(true_logits, self.shifter_matrix) + 1e-16
         log_logits = torch.log(logits)
         loss = F.nll_loss(log_logits, label)
         self.log('train_loss', loss)
@@ -33,14 +34,14 @@ class ShiftedNaiveClassifier(BaseClassifier):
         data, label = batch
         output = self(data)
         true_logits = F.softmax(output, -1)
-        logits = F.linear(true_logits, self.shifter_matrix)
+        logits = F.linear(true_logits, self.shifter_matrix) + 1e-16
         log_logits = torch.log(logits)
         loss = F.nll_loss(log_logits, label)
         self.log('val_loss', loss, on_epoch=True)
         self.val_metrics(logits, label)
         self.log_scalars(self.val_metrics)
 
-    def test_step(self, batch):
+    def test_step(self, batch, batch_idx):
         data, corrected_label = batch
         output = self(data)
         logits = F.softmax(output, -1)

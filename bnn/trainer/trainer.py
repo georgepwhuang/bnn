@@ -4,6 +4,7 @@ os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
 
 import warnings
 
+from jsonargparse import lazy_instance
 from pytorch_lightning.cli import LightningCLI
 from pytorch_lightning.loggers import TensorBoardLogger
 from tqdm import TqdmExperimentalWarning
@@ -16,7 +17,7 @@ class BNNCLI(LightningCLI):
         parser.link_arguments("data.init_args.dataset_name", "model.init_args.dataset_name")
         parser.link_arguments("data.num_classes", "model.init_args.labels", apply_on="instantiate")
         parser.link_arguments("data.correction_matrix", "model.init_args.correction_matrix", apply_on="instantiate")
-        parser.set_defaults({"trainer.logger": TensorBoardLogger(save_dir=LOG_DIR)})
+        parser.set_defaults({"trainer.logger": lazy_instance(TensorBoardLogger, save_dir=LOG_DIR)})
 
 
 warnings.filterwarnings("ignore", category=TqdmExperimentalWarning)

@@ -17,7 +17,7 @@ class MNISTClassifier(BaseClassifier):
             nn.MaxPool2d(kernel_size=2),
             nn.Flatten(),
             nn.Linear(100, 64),
-            nn.ReLU(),
+            nn.Softplus(),
             nn.Dropout(0.2),
             nn.Linear(64, self.num_classes)
         )
