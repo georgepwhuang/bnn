@@ -44,7 +44,7 @@ class BBBLinear(nn.Module):
             self.bias_mu.data.normal_(*self.posterior_mu_initial)
             self.bias_rho.data.normal_(*self.posterior_rho_initial)
 
-    def forward(self, x, sample=True):
+    def forward(self, x):
 
         self.W_sigma = torch.log1p(torch.exp(self.W_rho))
         if self.use_bias:
@@ -57,14 +57,14 @@ class BBBLinear(nn.Module):
         act_var = 1e-16 + F.linear(x ** 2, self.W_sigma ** 2, bias_var)
         act_std = torch.sqrt(act_var)
 
-        if self.training or sample:
+        if self.training:
             eps = torch.empty_like(act_mu).normal_(0, 1)
             return act_mu + act_std * eps
         else:
             return act_mu
 
-    def kl_loss(self, num_batches):
-        kl = KL_DIV(self.W_mu, self.W_sigma, self.prior_mu, self.prior_sigma, num_batches)
+    def kl_loss(self):
+        kl = KL_DIV(self.prior_mu, self.prior_sigma, self.W_mu, self.W_sigma)
         if self.use_bias:
-            kl += KL_DIV(self.bias_mu, self.bias_sigma, self.prior_mu, self.prior_sigma, num_batches)
+            kl += KL_DIV(self.prior_mu, self.prior_sigma, self.bias_mu, self.bias_sigma)
         return kl

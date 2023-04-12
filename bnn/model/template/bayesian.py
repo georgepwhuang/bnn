@@ -18,11 +18,11 @@ class BayesianClassifier(BaseClassifier):
         klloss = 0
         for module in self.model.modules():
             if hasattr(module, 'kl_loss'):
-                klloss = klloss + module.kl_loss(len(self.trainer.train_dataloader))
+                klloss = klloss + module.kl_loss()
         self.log('train_kldiv_loss', klloss)
         total_loss = celoss + self.get_beta(batch_idx, len(self.trainer.train_dataloader), self.current_epoch,
                                             self.trainer.max_epochs) * klloss
-        self.log('train_total_loss', total_loss)
+        self.log('train_loss', total_loss)
         return total_loss
 
     def validation_step(self, batch, batch_idx):
@@ -33,11 +33,11 @@ class BayesianClassifier(BaseClassifier):
         klloss = 0
         for module in self.model.modules():
             if hasattr(module, 'kl_loss'):
-                klloss = klloss + module.kl_loss(len(self.trainer.val_dataloaders))
+                klloss = klloss + module.kl_loss()
         self.log('val_kldiv_loss', klloss)
         total_loss = celoss + self.get_beta(batch_idx, len(self.trainer.val_dataloaders), self.current_epoch,
                                             self.trainer.max_epochs) * klloss
-        self.log('val_total_loss', total_loss)
+        self.log('val_loss', total_loss)
         logits = F.softmax(output, -1)
         self.val_metrics(logits, label)
         self.log_scalars(self.val_metrics)
@@ -53,11 +53,11 @@ class BayesianClassifier(BaseClassifier):
         klloss = 0
         for module in self.model.modules():
             if hasattr(module, 'kl_loss'):
-                klloss = klloss + module.kl_loss(len(self.trainer.test_dataloaders))
+                klloss = klloss + module.kl_loss()
         self.log('test_kldiv_loss', klloss)
         total_loss = celoss + self.get_beta(batch_idx, len(self.trainer.test_dataloaders), self.current_epoch,
                                             self.trainer.max_epochs) * klloss
-        self.log('test_total_loss', total_loss)
+        self.log('test_loss', total_loss)
         logits = F.softmax(output, -1)
         self.test_metrics(logits, corrected_label)
         self.log_scalars(self.test_metrics)

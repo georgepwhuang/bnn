@@ -2,12 +2,12 @@ seed_everything: 42
 data:
   class_path: bnn.datamodule.VisionDataModule
   init_args:
-    dataset_name: cifar10
+    dataset_name: mnist
     batch_size: 64
 model:
-  class_path: bnn.model.CIFARClassifier
-  #init_args:
-    #beta: 0.1
+  class_path: bnn.model.BayesianMNISTClassifier
+  init_args:
+    beta: Blundell
 optimizer:
   class_path: torch.optim.AdamW
   init_args:
