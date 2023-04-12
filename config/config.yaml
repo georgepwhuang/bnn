@@ -5,7 +5,7 @@ data:
     dataset_name: mnist
     batch_size: 64
 model:
-  class_path: bnn.model.BayesianMNISTClassifier
+  class_path: bnn.model.MixtureMNISTClassifier
   init_args:
     beta: Blundell
 optimizer:

@@ -9,7 +9,7 @@ class BBBMixtureLinear(BBBLinear):
         if priors is None:
             priors = {
                 'prior_mu': (0, 0),
-                'prior_sigma': (0.5, 0.05),
+                'prior_sigma': (1, 0.01),
                 'posterior_mu_initial': (0, 0.1),
                 'posterior_rho_initial': (-3, 0.1),
             }
