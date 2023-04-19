@@ -1,3 +1,4 @@
+from abc import ABC
 from typing import List, Union
 
 from torch.nn import functional as F
@@ -5,7 +6,7 @@ from torch.nn import functional as F
 from bnn.model.template.base import BaseClassifier
 
 
-class BayesianClassifier(BaseClassifier):
+class BayesianClassifier(BaseClassifier, ABC):
     def __init__(self, labels: Union[List[Union[str, int]], int], beta: Union[str, float], *args, **kwargs):
         super(BayesianClassifier, self).__init__(labels, *args, **kwargs)
         self.beta = beta
@@ -42,9 +43,6 @@ class BayesianClassifier(BaseClassifier):
         self.val_metrics(logits, label)
         self.log_scalars(self.val_metrics)
 
-    def on_validation_epoch_end(self):
-        self.log_nonscalars(self.val_metrics)
-
     def test_step(self, batch, batch_idx):
         data, corrected_label = batch
         output = self(data)
@@ -61,9 +59,6 @@ class BayesianClassifier(BaseClassifier):
         logits = F.softmax(output, -1)
         self.test_metrics(logits, corrected_label)
         self.log_scalars(self.test_metrics)
-
-    def on_test_epoch_end(self):
-        self.log_nonscalars(self.test_metrics)
 
     def get_beta(self, batch_idx, m, epoch, num_epochs):
         beta_type = self.beta

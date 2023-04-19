@@ -1,3 +1,4 @@
+from abc import ABC
 from typing import List, Union
 
 import torch
@@ -6,7 +7,7 @@ from torch.nn import functional as F
 from bnn.model.template.base import BaseClassifier
 
 
-class ShiftedNaiveClassifier(BaseClassifier):
+class ShiftedNaiveClassifier(BaseClassifier, ABC):
     def __init__(self, labels: Union[List[Union[str, int]], int], correction_matrix: torch.Tensor, *args, **kwargs):
         super(ShiftedNaiveClassifier, self).__init__(labels, *args, **kwargs)
         self.shifter_matrix = correction_matrix

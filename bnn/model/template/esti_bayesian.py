@@ -1,24 +1,34 @@
 from abc import ABC
-from typing import List, Union
+from typing import List, Union, Optional
 
+import copy
 import torch
 from torch.nn import functional as F
 
 from bnn.model.template.bayesian import BayesianClassifier
-from bnn.model.template.shifted_naive import ShiftedNaiveClassifier
+from bnn.model.template.esti_naive import EstiNaiveClassifier
 
 
-class ShiftedBayesianClassifier(BayesianClassifier, ShiftedNaiveClassifier, ABC):
-    def __init__(self, labels: Union[List[Union[str, int]], int], correction_matrix: torch.Tensor,
-                 beta: Union[str, float], *args, **kwargs):
-        super(ShiftedBayesianClassifier, self).__init__(labels=labels, correction_matrix=correction_matrix, beta=beta,
-                                                        *args, **kwargs)
+class EstiBayesianClassifier(BayesianClassifier, EstiNaiveClassifier, ABC):
+    def __init__(self, labels: Union[List[Union[str, int]], int], beta: Union[str, float], 
+                 noisy_checkpoint: Optional[str] = None, *args, **kwargs):
+        super(EstiBayesianClassifier, self).__init__(labels=labels, beta=beta, *args, **kwargs)
+        self.noisy_checkpoint = noisy_checkpoint
 
     def training_step(self, batch, batch_idx):
         data, label = batch
         output = self(data)
         true_logits = F.softmax(output, -1)
-        logits = F.linear(true_logits, self.shifter_matrix) + 1e-16
+        with torch.no_grad():
+            noisy_logits = F.softmax(self.noisy_model(data), -1)
+            prev_logits = F.softmax(self.prev(data), -1)
+            transition = torch.mul(self.confusion_matrix, noisy_logits.unsqueeze(2).div(prev_logits.unsqueeze(1)))  + 1e-16
+            transition = transition / transition.sum(1, keepdim=True)
+            transition = transition.nan_to_num(0, 0, 0)
+            transition = (self.identity * (self.trainer.max_epochs - self.current_epoch) 
+                          + transition * self.current_epoch)/self.trainer.max_epochs
+            transition = transition / transition.sum(1, keepdim=True)
+        logits = torch.bmm(transition, true_logits.unsqueeze(-1)).squeeze(-1) + 1e-16
         log_logits = torch.log(logits)
         celoss = F.nll_loss(log_logits, label)
         self.log('train_cross_entropy_loss', celoss)
@@ -36,7 +46,16 @@ class ShiftedBayesianClassifier(BayesianClassifier, ShiftedNaiveClassifier, ABC)
         data, label = batch
         output = self(data)
         true_logits = F.softmax(output, -1)
-        logits = F.linear(true_logits, self.shifter_matrix) + 1e-16
+        with torch.no_grad():
+            noisy_logits = F.softmax(self.noisy_model(data), -1)
+            prev_logits = F.softmax(self.prev(data), -1)
+            transition = torch.mul(self.confusion_matrix, noisy_logits.unsqueeze(2).div(prev_logits.unsqueeze(1))) + 1e-16
+            transition = transition / transition.sum(1, keepdim=True)
+            transition = transition.nan_to_num(0, 0, 0)
+            transition = (self.identity * (self.trainer.max_epochs - self.current_epoch) 
+                          + transition * self.current_epoch)/self.trainer.max_epochs
+            transition = transition / transition.sum(1, keepdim=True)
+        logits = torch.bmm(transition, true_logits.unsqueeze(-1)).squeeze(-1) + 1e-16
         log_logits = torch.log(logits)
         celoss = F.nll_loss(log_logits, label)
         self.log('val_cross_entropy_loss', celoss, on_epoch=True)

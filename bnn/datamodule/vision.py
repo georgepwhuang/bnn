@@ -56,3 +56,10 @@ class VisionDataModule(pl.LightningDataModule):
 
     def test_dataloader(self):
         return DataLoader(self.test_dataset, batch_size=self.batch_size)
+
+if __name__ == "__main__":
+    datamodule = VisionDataModule("cifar10", 128)
+    print(f"Noise Matrix (aka Noisy Channel) P(given_label|true_label) of shape ({datamodule.num_classes}, {datamodule.num_classes})")
+    print(*(["p(s|y)"] + [f'y={i}' for i in range(datamodule.num_classes)]), sep="\t")
+    for i in range(datamodule.num_classes):
+        print(*([f"s={i} |"] + ["{:.1e}".format(datamodule.correction_matrix[i][j].item()) for j in range(datamodule.num_classes)]), sep="\t")
